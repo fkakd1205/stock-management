@@ -34,3 +34,24 @@ how to solve concurrency issues in stock management
 1. 별도의 Lock을 잡기 때문에 성능 감소가 있을 수 있다.
 
 <br />
+
+<b>1. Optimistic Lock</b>
+- 실제로 Lock 을 이용하지 않고 버전을 이용함으로써 정합성을 맞추는 방법
+- version 필드를 추가해, 데이터를 읽을 때와 반영할 때 version을 비교한다. 반영 시 내가 읽은 버전이 아닌 다른 버전이라면 application에서 다시 읽은 후에 작업을 수행
+  - Entity에 version 컬럼 추가 및 `@Version` 어노테이션 설정. 이때 `javax.persistence.Version` 사용
+- 쿼리 메서드에 `@Lock(LockModeType.Optimistic)` 어노테이션을 이용해 쉽게 Optimistic Lock을 걸 수 있다.
+- `for update` 없이 version을 통해 정합성 확인
+- 실행에 오류가 있다면 Xms 이후에 다시 조회하고, 수정하는 작업을 진행
+  - 이 역할을 위한 Facade 클래스 생성
+
+장점
+1. 별도의 Lock을 걸지 않아 Pessimistic Lock보다 성능 상 이점이 있다.
+
+단점
+1. 개발자가 실패로직을 개발자가 직접 작성해줘야 한다.
+
+<br />
+
+→ 만약 충돌이 빈번하게 일어날 것으로 예상된다면 Pessimistic Lock을 추천, 그렇지 않다면 Optimistic Lock을 추천.
+
+<br />
