@@ -69,3 +69,26 @@ how to solve concurrency issues in stock management
 1. 트랜잭션 종료시에 Lock 해제 및 세션 관리를 잘해줘야 하고 실제 구현할 때는 구현방법이 복잡해질 수 있다.
 
 <br />
+<br />
+
+### 해결방법 3 - Redis
+Redis에서 동시성 문제를 해결할 때 사용하는 라이브러리 Lettuce, Redisson을 이용해 해결
+
+<br />
+
+<b>1. Lettuce</b>
+- setnx 명령어를 활용하여 분산락 구현
+  - setnx(set if not exist) : key-value를 설정할 때, 값이 없을 때만 set하는 명령어
+- spin lock 방식
+  - 락을 획득하려는 스레드가 락을 사용할 수 있는지 반복적으로 확인하면서 락 획득을 시도하는 방식
+  - 따라서 개발자가 직접 retry로직을 작성해줘야 한다.
+
+장점
+1. 구현이 간단하다 
+2. spring-data-redis를 이용하면 lettuce를 기본으로 사용하기 때문에 별도의 라이브러리를 사용하지 않아도 된다. 
+3. Lettuce를 활용한 방법은 Named Lock과 거의 비슷하다. Named Lock과는 달리, 세션 관리에 신경을 안 써도 된다는 장점이 있다.
+
+단점
+1. spin lock 방식이기 때문에 동시에 많은 스레드가 lock 획득 대기 상태라면 redis에 부하가 갈 수 있다.
+
+<br />
