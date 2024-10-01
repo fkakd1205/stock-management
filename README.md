@@ -35,7 +35,7 @@ how to solve concurrency issues in stock management
 
 <br />
 
-<b>1. Optimistic Lock</b>
+<b>2. Optimistic Lock</b>
 - 실제로 Lock 을 이용하지 않고 버전을 이용함으로써 정합성을 맞추는 방법
 - version 필드를 추가해, 데이터를 읽을 때와 반영할 때 version을 비교한다. 반영 시 내가 읽은 버전이 아닌 다른 버전이라면 application에서 다시 읽은 후에 작업을 수행
   - Entity에 version 컬럼 추가 및 `@Version` 어노테이션 설정. 이때 `javax.persistence.Version` 사용
@@ -48,10 +48,24 @@ how to solve concurrency issues in stock management
 1. 별도의 Lock을 걸지 않아 Pessimistic Lock보다 성능 상 이점이 있다.
 
 단점
-1. 개발자가 실패로직을 개발자가 직접 작성해줘야 한다.
+1. 개발자가 실패로직을 직접 작성해줘야 한다.
 
 <br />
 
 → 만약 충돌이 빈번하게 일어날 것으로 예상된다면 Pessimistic Lock을 추천, 그렇지 않다면 Optimistic Lock을 추천.
+
+<br />
+
+<b>3. Named Lock</b>
+- 이름을 가진 메타데이터 Lock
+- 실제 데이터에 락을 거는 것이 아닌, 별도의 공간에 락을 걸어서 사용한다.
+- Pessimistic Lock은 로우나 테이블 단위로 걸지만, Named Lock은 메타데이터에 락을 건다.
+- 트랜잭션이 종료될 때 락이 자동으로 해제되지 않아, 별도의 명령어로 해제를 수행해주거나 선점시간이 끝나야 해제된다.
+
+장점
+1. NameLock은 주로 분산락을 구현할 때 사용한다. Pessimistic Lock은 timeout을 구현하기 힘들지만 Named Lock은 timeout을 구현하기 쉽다. 
+
+단점
+1. 트랜잭션 종료시에 Lock 해제 및 세션 관리를 잘해줘야 하고 실제 구현할 때는 구현방법이 복잡해질 수 있다.
 
 <br />
